@@ -83,3 +83,7 @@ func (c *Crypt)Set(pwd string) error {
 
 	return	NoMatchingDef
 }
+
+func (c *Crypt)Crypter() Crypter {
+	return	c.found
+}
