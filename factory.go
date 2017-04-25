@@ -3,6 +3,7 @@ package	password
 import	(
 	"encoding"
 	"flag"
+	"fmt"
 )
 
 type	(
@@ -30,6 +31,7 @@ type	(
 	}
 
 	Factory	struct {
+		CustomFlagHelper	func([]string) string
 		index	[]Definition
 		deflt	Crypter
 		found	Crypter
@@ -67,6 +69,20 @@ func CrypterFound() Crypter {
 
 func (c *Factory)Register(def ...Definition) {
 	c.index = append(c.index, def...)
+}
+
+
+func (c *Factory)FlagHelper() string {
+	a := make([]string,len(c.index))
+	for i,d := range c.index {
+		a[i] = d.String()
+	}
+
+	if c.CustomFlagHelper != nil {
+		return c.CustomFlagHelper(a)
+	}
+
+	return fmt.Sprintf("accepted password types : %+v", a)
 }
 
 
