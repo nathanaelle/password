@@ -70,7 +70,7 @@ func TestCrypterSHA512Crypt(t *testing.T) {
 			continue
 		}
 
-		out := crypter.Crypt([]byte(seq.input))
+		out := crypter.Crypt([]byte(seq.input)).String()
 		if out != seq.output {
 			t.Errorf("-- %d\n%123s\n%123s", idx, out, seq.output)
 		}

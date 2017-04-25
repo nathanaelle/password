@@ -77,7 +77,7 @@ func TestCrypterBCRYPTCrypt(t *testing.T) {
 			continue
 		}
 
-		out := crypter.Crypt([]byte(seq.input))
+		out := crypter.Crypt([]byte(seq.input)).String()
 		if out != seq.output {
 			t.Errorf("-- %d\n[%60s]\n[%60s]", idx, out, seq.output)
 		}

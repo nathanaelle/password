@@ -19,24 +19,22 @@ type	(
 		Salt(salt []byte)		Crypter
 		Hashed(pwd []byte)		Crypter
 		Set(pwd string) 		error
-		Crypt(pwd []byte)		string
+		Crypt(pwd []byte)		Crypter
 		Verify(pwd []byte)		bool
 		Options()			map[string]interface{}
 		Definition()			Definition
+		String()			string
 	}
 
-	Crypt	struct {
+	Factory	struct {
 		index	[]Definition
 		deflt	Crypter
 		found	Crypter
 	}
 )
 
-var	(
+var crypt	= &Factory{}
 
-	crypt	*Crypt	= &Crypt{
-	}
-)
 
 func register(def Definition) Definition {
 	crypt.Register(def)
@@ -44,29 +42,41 @@ func register(def Definition) Definition {
 }
 
 
+// register the definition of a new crypter
 func Register(def ...Definition) {
 	crypt.Register(def...)
 }
 
+// define a default crypter
 func SetDefault(def Definition) {
 	crypt.SetDefault(def)
 }
 
+// see `Crypt.Set(string) error`
 func Set(pwd string) error {
 	return	crypt.Set(pwd)
 }
 
+func CrypterFound() Crypter {
+	return	crypt.found
+}
 
-func (c *Crypt)Register(def ...Definition) {
+
+func (c *Factory)Register(def ...Definition) {
 	c.index = append(c.index, def...)
 }
 
 
-func (c *Crypt)SetDefault(def Definition) {
+func (c *Factory)SetDefault(def Definition) {
 	c.deflt	= def.Default()
 }
 
-func (c *Crypt)Set(pwd string) error {
+// Allow to use this type as a `flag.Value`
+func (c *Factory)Set(pwd string) error {
+	if c.index == nil || len(c.index) == 0 {
+		c.index = append(c.index, crypt.index...)
+	}
+
 	for _,i := range c.index {
 		if crypter, ok := i.CrypterFound(pwd); ok {
 			c.found = crypter
@@ -82,6 +92,17 @@ func (c *Crypt)Set(pwd string) error {
 	return	NoMatchingDef
 }
 
-func (c *Crypt)Crypter() Crypter {
+func (c *Factory)String() string {
+	if c.found != nil {
+		return c.found.String()
+	}
+	if c.deflt != nil {
+		return c.deflt.String()
+	}
+	return	""
+
+}
+
+func (c *Factory)CrypterFound() Crypter {
 	return	c.found
 }

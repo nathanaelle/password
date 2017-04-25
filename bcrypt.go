@@ -28,9 +28,12 @@ const	(
 )
 
 
-var	orpheanbeholderscrydoubt= []byte("OrpheanBeholderScryDoubt")
-var	bcrypt_prefix_alias	= [4]string{"$2$", "$2b$", "$2x$", "$2y$" }
-var	BCRYPT	Definition	= register( bcryptdriver{ bcrypt_def_cost } )
+var	(
+	orpheanbeholderscrydoubt= []byte("OrpheanBeholderScryDoubt")
+	bcrypt_prefix_alias	= [4]string{"$2$", "$2b$", "$2x$", "$2y$" }
+)
+
+var BCRYPT	Definition	= register( bcryptdriver{ bcrypt_def_cost } )
 
 func (_ bcryptdriver)String() string {
 	return	"{BLF-CRYPT}"
@@ -63,7 +66,7 @@ func (d bcryptdriver)Default() Crypter {
 
 
 func (d bcryptdriver)Crypt(pwd, salt []byte, options map[string]interface{}) string {
-	return	d.SetOptions(options).Default().Salt(salt).Crypt(pwd)
+	return	d.SetOptions(options).Default().Salt(salt).Crypt(pwd).String()
 }
 
 func (d bcryptdriver)CrypterFound(str string)	(Crypter,bool) {
@@ -115,18 +118,25 @@ func (p *bcryptpwd) Definition() Definition  {
 }
 
 
-func (p *bcryptpwd) Crypt(pwd []byte)	string {
-	hashed	:= p.crypt(pwd)
-	hashencoded := bc64.EncodeToString(hashed[:])
-	saltencoded := bc64.EncodeToString(p.salt)
+func (p *bcryptpwd) Crypt(pwd []byte)	Crypter {
+	np	:= new(bcryptpwd)
+	*np	= *p
 
+	hashed	:= np.crypt(pwd)
+	copy(np.hashed[:], []byte(bc64.EncodeToString(hashed[:])))
+
+	return	np
+}
+
+func (p *bcryptpwd) String()	string {
+	hashencoded := string(p.hashed[:])
+	saltencoded := bc64.EncodeToString(p.salt)
 	if p.cost == bcrypt_def_cost {
 		return fmt.Sprintf(bcrypt_prefix+"%s%s", saltencoded, hashencoded)
 
 	}
 	return fmt.Sprintf(bcrypt_prefix+"%02d$%s%s", p.cost, saltencoded, hashencoded)
 }
-
 
 func (p *bcryptpwd) Verify(pwd []byte) bool {
 	h := p.crypt(pwd)

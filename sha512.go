@@ -28,9 +28,7 @@ const	(
 	sha512_prefix		= "$6$"
 )
 
-var (
-	SHA512	Definition	= register( sha512driver{ sha512_def_rounds } )
-)
+var SHA512	Definition	= register( sha512driver{ sha512_def_rounds } )
 
 func (_ sha512driver)String() string {
 	return	"{SHA512-CRYPT}"
@@ -63,7 +61,7 @@ func (d sha512driver)Default() Crypter {
 
 
 func (d sha512driver)Crypt(pwd, salt []byte, options map[string]interface{}) string {
-	return	d.SetOptions(options).Default().Salt(salt).Crypt(pwd)
+	return	d.SetOptions(options).Default().Salt(salt).Crypt(pwd).String()
 }
 
 func (d sha512driver)CrypterFound(str string)	(Crypter,bool) {
@@ -112,13 +110,20 @@ func (p *sha512pwd) Definition() Definition  {
 }
 
 
-func (p *sha512pwd) Crypt(pwd []byte)	string {
-	if pwd == nil || len(pwd) == 0 {
-		return	sha512_prefix+"ERROR ERROR ERROR"
-	}
+
+func (p *sha512pwd) Crypt(pwd []byte)	Crypter {
+	np	:= new(sha512pwd)
+	*np	= *p
 
 	hashed	:= p.crypt(pwd)
-	hashencoded := h64Encode(hashed[:])
+	copy(np.hashed[:], h64Encode(hashed[:]))
+
+	return	np
+}
+
+
+func (p *sha512pwd) String() string {
+	hashencoded := string(p.hashed[:])
 	saltencoded := string(p.salt)
 
 	if p.rounds == sha512_def_rounds {
@@ -127,6 +132,8 @@ func (p *sha512pwd) Crypt(pwd []byte)	string {
 	}
 	return fmt.Sprintf(sha512_prefix+"rounds=%d$%s$%s", p.rounds, saltencoded, hashencoded)
 }
+
+
 
 
 func (p *sha512pwd) Verify(pwd []byte) bool {

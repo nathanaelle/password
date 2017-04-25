@@ -31,11 +31,8 @@ const	(
 
 
 
-var (
-	SHA256	Definition	= register( sha256driver{ sha256_def_rounds } )
+var SHA256	Definition	= register( sha256driver{ sha256_def_rounds } )
 
-	ERR_NOPE	error	= fmt.Errorf("NOPE")
-)
 
 
 func (_ sha256driver)String() string {
@@ -69,7 +66,7 @@ func (d sha256driver)Default() Crypter {
 
 
 func (d sha256driver)Crypt(pwd, salt []byte, options map[string]interface{}) string {
-	return	d.SetOptions(options).Default().Salt(salt).Crypt(pwd)
+	return	d.SetOptions(options).Default().Salt(salt).Crypt(pwd).String()
 }
 
 func (d sha256driver)CrypterFound(str string)	(Crypter,bool) {
@@ -118,13 +115,19 @@ func (p *sha256pwd) Definition() Definition  {
 }
 
 
-func (p *sha256pwd) Crypt(pwd []byte)	string {
-	if pwd == nil || len(pwd) == 0 {
-		return	sha256_prefix+"ERROR ERROR ERROR"
-	}
+func (p *sha256pwd) Crypt(pwd []byte)	Crypter {
+	np	:= new(sha256pwd)
+	*np	= *p
 
 	hashed	:= p.crypt(pwd)
-	hashencoded := h64Encode(hashed[:])
+	copy(np.hashed[:], h64Encode(hashed[:]))
+
+	return	np
+}
+
+
+func (p *sha256pwd) String() string {
+	hashencoded := string(p.hashed[:])
 	saltencoded := string(p.salt)
 
 	if p.rounds == sha256_def_rounds {
