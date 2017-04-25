@@ -241,3 +241,13 @@ func bcryptSetup(pwd []byte, salt []byte, cost uint) (*blowfish.Cipher, error) {
 
 	return	bfcipher, nil
 }
+
+
+func (p *bcryptpwd) MarshalText() ([]byte, error) {
+	return	[]byte(p.String()), nil
+}
+
+
+func (p *bcryptpwd) UnmarshalText(text []byte) error {
+	return	p.Set(string(text))
+}

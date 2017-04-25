@@ -206,6 +206,16 @@ func (p *sha512pwd)Set(str string) error {
 }
 
 
+func (p *sha512pwd) MarshalText() ([]byte, error) {
+	return	[]byte(p.String()), nil
+}
+
+
+func (p *sha512pwd) UnmarshalText(text []byte) error {
+	return	p.Set(string(text))
+}
+
+
 func sum512(vec ...[]byte) hash.Hash {
 	h := sha512.New()
 	for _, s := range vec {

@@ -1,6 +1,8 @@
 package	password
 
 import	(
+	"encoding"
+	"flag"
 )
 
 type	(
@@ -18,12 +20,13 @@ type	(
 	Crypter	interface {
 		Salt(salt []byte)		Crypter
 		Hashed(pwd []byte)		Crypter
-		Set(pwd string) 		error
 		Crypt(pwd []byte)		Crypter
 		Verify(pwd []byte)		bool
 		Options()			map[string]interface{}
 		Definition()			Definition
-		String()			string
+		encoding.TextMarshaler
+		encoding.TextUnmarshaler
+		flag.Value
 	}
 
 	Factory	struct {
@@ -105,4 +108,14 @@ func (c *Factory)String() string {
 
 func (c *Factory)CrypterFound() Crypter {
 	return	c.found
+}
+
+
+func (p *Factory) MarshalText() ([]byte, error) {
+	return	[]byte(p.String()), nil
+}
+
+
+func (p *Factory) UnmarshalText(text []byte) error {
+	return	p.Set(string(text))
 }

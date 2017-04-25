@@ -207,6 +207,16 @@ func (p *sha256pwd)Set(str string)	error {
 	return ERR_NOPE
 }
 
+func (p *sha256pwd) MarshalText() ([]byte, error) {
+	return	[]byte(p.String()), nil
+}
+
+
+func (p *sha256pwd) UnmarshalText(text []byte) error {
+	return	p.Set(string(text))
+}
+
+
 
 func sum256(vec ...[]byte) hash.Hash {
 	h := sha256.New()
