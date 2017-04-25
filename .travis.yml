@@ -6,3 +6,5 @@ go:
 branches:
   only:
   - master
+install:
+  - go get golang.org/x/crypto/blowfish

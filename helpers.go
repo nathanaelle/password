@@ -5,8 +5,12 @@ import	(
 	"strings"
 	"fmt"
 	"strconv"
+	"encoding/base64"
 )
 
+
+var rawbase64	= base64.RawStdEncoding
+var bc64	= base64.NewEncoding("./ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789").WithPadding(base64.NoPadding)
 
 func getrand(l int) []byte {
 	if l<1 || l>65536 {
@@ -40,6 +44,25 @@ func getrandh64(l int) []byte {
 	return	ret[:l]
 }
 
+
+func options_single_int(str, opt_name string, max_len int) map[string]interface{} {
+	if str == "" {
+		return	nil
+	}
+
+	if len(str) > max_len {
+		return	nil
+	}
+
+	v,err := strconv.Atoi(str)
+	if err != nil {
+		return	nil
+	}
+	ret	:= make(map[string]interface{})
+	ret[opt_name] = v
+
+	return	ret
+}
 
 func options(str string) map[string]interface{} {
 	if str == "" {

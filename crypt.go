@@ -1,7 +1,6 @@
 package	password
 
 import	(
-	"fmt"
 )
 
 type	(
@@ -34,7 +33,6 @@ type	(
 )
 
 var	(
-	NoMatchingDef	error	= fmt.Errorf("No Matching Definition Found")
 
 	crypt	*Crypt	= &Crypt{
 	}

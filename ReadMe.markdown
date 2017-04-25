@@ -4,9 +4,20 @@
 
 ## Implemented schemas
 
-  * [x] `$5$` SHA256-CRYPT
-  * [x] `$6$` SHA512-CRYPT
+### Safe schemas
 
-## Licence
+  * [x] `$5$` SHA256-CRYPT https://www.akkadia.org/drepper/sha-crypt.html
+  * [x] `$6$` SHA512-CRYPT https://www.akkadia.org/drepper/sha-crypt.html
+  * [x] `$2a$` BLF-CRYPT / BCRYPT
+  * [ ] `$2b$`, `$2y$` aliases of `$2a$`
+
+### Unsafe schemas
+
+  * [ ] `$2$` BCRYPT ( if you provide a $2$ hash, it may be produced by a buggy version of bcrypt )
+  * [ ] `$2x$` BCRYPT ( explicitly buggy version of  php bcrypt )
+  * [ ] `$1$` MD5-CRYPT
+  * [ ] `$apr1$` APR1
+
+## License
 
 BSD-2
