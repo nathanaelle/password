@@ -13,10 +13,10 @@
 
 ### Unsafe schemas
 
+  * [x] `$1$` MD5-CRYPT
+  * [x] `$apr1$` APR1
   * [ ] `$2$` BCRYPT ( if you provide a $2$ hash, it may be produced by a buggy version of bcrypt )
   * [ ] `$2x$` BCRYPT ( explicitly buggy version of  php bcrypt )
-  * [ ] `$1$` MD5-CRYPT
-  * [ ] `$apr1$` APR1
 
 ## License
 
