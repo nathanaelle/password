@@ -1,7 +1,6 @@
 package password	// import "github.com/nathanaelle/password"
 
 import	(
-	"hash"
 	"strings"
 	"fmt"
 	"crypto/subtle"
@@ -216,34 +215,18 @@ func (p *sha512pwd) UnmarshalText(text []byte) error {
 }
 
 
-func sum512(vec ...[]byte) hash.Hash {
-	h := sha512.New()
-	for _, s := range vec {
-		h.Write(s)
-	}
-
-	return	h
-}
-
 func (p *sha512pwd) crypt(pwd []byte)	[64]byte {
-	sumB	:= sum512( pwd, p.salt, pwd).Sum(nil)
+	sumB	:= common_sum( sha512.New(), pwd, p.salt, pwd).Sum(nil)
 
-	A	:= sum512( pwd, p.salt, repeat_bytes(sumB, len(pwd)) )
-	for i := len(pwd); i > 0; i >>= 1 {
-		if (i%2) != 0 {
-			A.Write(sumB)
-		} else {
-			A.Write(pwd)
-		}
-	}
-	sumA	:= A.Sum(nil)
+	A	:= common_sum( sha512.New(), pwd, p.salt, repeat_bytes(sumB, len(pwd)) )
+	sumA	:= common_sum(A, common_mixer(len(pwd), sumB, pwd)...).Sum(nil)
 
-	sumP	:= repeat_bytes( sum512( multiply_bytes(pwd, len(pwd))... ).Sum(nil), len(pwd) )
-	sumS	:= repeat_bytes( sum512( multiply_bytes(p.salt, (16+int(sumA[0])) )... ).Sum(nil), len(p.salt) )
+	sumP	:= repeat_bytes( common_sum( sha512.New(), multiply_bytes(pwd, len(pwd))... ).Sum(nil), len(pwd) )
+	sumS	:= repeat_bytes( common_sum( sha512.New(), multiply_bytes(p.salt, (16+int(sumA[0])) )... ).Sum(nil), len(p.salt) )
 
 	sumC	:= sumA
 	for i := 0; i < p.rounds; i++ {
-		sumC	= sum512( dispatch512(i, sumC, sumP, sumS)... ).Sum(nil)
+		sumC	= common_sum( sha512.New(), common_dispatch(i, sumC, sumP, sumS)... ).Sum(nil)
 	}
 
 	return	[64]byte{
@@ -270,29 +253,4 @@ func (p *sha512pwd) crypt(pwd []byte)	[64]byte {
 		sumC[41], sumC[20], sumC[62],
 		sumC[63],
 	}
-}
-
-func dispatch512(i int, sumC, sumP, sumS []byte) [][]byte {
-	if i%42 == 0 {
-		return [][]byte{ sumC, sumP }
-	}
-	if i%21 == 0 {
-		return [][]byte{ sumP, sumC }
-	}
-	if i%14 == 0 {
-		return [][]byte{ sumC, sumS, sumP }
-	}
-	if i%7 == 0 {
-		return [][]byte{ sumP, sumS, sumC }
-	}
-	if i%6 == 0 {
-		return [][]byte{ sumC, sumP, sumP }
-	}
-	if i%3 == 0 {
-		return [][]byte{ sumP, sumP, sumC }
-	}
-	if i%2 == 0 {
-		return [][]byte{ sumC, sumS, sumP, sumP }
-	}
-	return [][]byte{ sumP, sumS, sumP, sumC }
 }

@@ -1,6 +1,7 @@
 package	password	// import "github.com/nathanaelle/password"
 
 import	(
+	"hash"
 	"crypto/rand"
 	"strings"
 	"fmt"
@@ -199,4 +200,51 @@ func h64Encode(src []byte) []byte {
 	}
 
 	return hash
+}
+
+
+// used in SHA256-CRYPT SHA512-CRYPT MD5-CRYPT
+func common_sum(h hash.Hash, vec ...[]byte) hash.Hash {
+	for _, s := range vec {
+		h.Write(s)
+	}
+
+	return	h
+}
+
+// used in SHA256-CRYPT SHA512-CRYPT
+func common_dispatch(i int, sumC, sumP, sumS []byte) [][]byte {
+	if i%42 == 0 {
+		return [][]byte{ sumC, sumP }
+	}
+	if i%21 == 0 {
+		return [][]byte{ sumP, sumC }
+	}
+	if i%14 == 0 {
+		return [][]byte{ sumC, sumS, sumP }
+	}
+	if i%7 == 0 {
+		return [][]byte{ sumP, sumS, sumC }
+	}
+	if i%6 == 0 {
+		return [][]byte{ sumC, sumP, sumP }
+	}
+	if i%3 == 0 {
+		return [][]byte{ sumP, sumP, sumC }
+	}
+	if i%2 == 0 {
+		return [][]byte{ sumC, sumS, sumP, sumP }
+	}
+	return [][]byte{ sumP, sumS, sumP, sumC }
+}
+
+func common_mixer(l int, caseA, caseB []byte) (ret [][]byte) {
+	for i := l; i > 0; i >>= 1 {
+		if (i%2) != 0 {
+			ret = append(ret, caseA)
+		} else {
+			ret = append(ret, caseB)
+		}
+	}
+	return
 }

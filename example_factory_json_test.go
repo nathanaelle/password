@@ -7,7 +7,7 @@ import	(
 )
 
 
-func ExampleJSONFactory() {
+func ExampleFactory_UnmarshalText() {
 	var t  struct {
 		Password   *Factory	`json:"pwd"`
 	}

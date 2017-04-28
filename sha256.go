@@ -1,7 +1,6 @@
 package password	// import "github.com/nathanaelle/password"
 
 import	(
-	"hash"
 	"strings"
 	"fmt"
 	"crypto/subtle"
@@ -217,35 +216,18 @@ func (p *sha256pwd) UnmarshalText(text []byte) error {
 }
 
 
-
-func sum256(vec ...[]byte) hash.Hash {
-	h := sha256.New()
-	for _, s := range vec {
-		h.Write(s)
-	}
-
-	return	h
-}
-
 func (p *sha256pwd) crypt(pwd []byte)	[32]byte {
-	sumB	:= sum256( pwd, p.salt, pwd).Sum(nil)
+	sumB	:= common_sum( sha256.New(), pwd, p.salt, pwd).Sum(nil)
 
-	A	:= sum256( pwd, p.salt, repeat_bytes(sumB, len(pwd)) )
-	for i := len(pwd); i > 0; i >>= 1 {
-		if (i%2) != 0 {
-			A.Write(sumB)
-		} else {
-			A.Write(pwd)
-		}
-	}
-	sumA	:= A.Sum(nil)
+	A	:= common_sum( sha256.New(), pwd, p.salt, repeat_bytes(sumB, len(pwd)) )
+	sumA	:= common_sum(A, common_mixer(len(pwd), sumB, pwd)...).Sum(nil)
 
-	sumP	:= repeat_bytes( sum256( multiply_bytes(pwd, len(pwd))... ).Sum(nil), len(pwd) )
-	sumS	:= repeat_bytes( sum256( multiply_bytes(p.salt, (16+int(sumA[0])) )... ).Sum(nil), len(p.salt) )
+	sumP	:= repeat_bytes( common_sum( sha256.New(), multiply_bytes(pwd, len(pwd))... ).Sum(nil), len(pwd) )
+	sumS	:= repeat_bytes( common_sum( sha256.New(), multiply_bytes(p.salt, (16+int(sumA[0])) )... ).Sum(nil), len(p.salt) )
 
 	sumC	:= sumA
 	for i := 0; i < p.rounds; i++ {
-		sumC	= sum256( dispatch256(i, sumC, sumP, sumS)... ).Sum(nil)
+		sumC	= common_sum( sha256.New(), common_dispatch(i, sumC, sumP, sumS)... ).Sum(nil)
 	}
 
 	return	[32]byte{
@@ -261,29 +243,4 @@ func (p *sha256pwd) crypt(pwd []byte)	[32]byte {
 		sumC[29], sumC[19], sumC[9],
 		sumC[30], sumC[31],
 	}
-}
-
-func dispatch256(i int, sumC, sumP, sumS []byte) [][]byte {
-	if i%42 == 0 {
-		return [][]byte{ sumC, sumP }
-	}
-	if i%21 == 0 {
-		return [][]byte{ sumP, sumC }
-	}
-	if i%14 == 0 {
-		return [][]byte{ sumC, sumS, sumP }
-	}
-	if i%7 == 0 {
-		return [][]byte{ sumP, sumS, sumC }
-	}
-	if i%6 == 0 {
-		return [][]byte{ sumC, sumP, sumP }
-	}
-	if i%3 == 0 {
-		return [][]byte{ sumP, sumP, sumC }
-	}
-	if i%2 == 0 {
-		return [][]byte{ sumC, sumS, sumP, sumP }
-	}
-	return [][]byte{ sumP, sumS, sumP, sumC }
 }
