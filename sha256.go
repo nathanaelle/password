@@ -210,12 +210,6 @@ func (p *sha256pwd) MarshalText() ([]byte, error) {
 	return	[]byte(p.String()), nil
 }
 
-
-func (p *sha256pwd) UnmarshalText(text []byte) error {
-	return	p.Set(string(text))
-}
-
-
 func (p *sha256pwd) crypt(pwd []byte)	[32]byte {
 	sumB	:= common_sum( sha256.New(), pwd, p.salt, pwd).Sum(nil)
 

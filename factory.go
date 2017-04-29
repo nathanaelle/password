@@ -26,7 +26,6 @@ type	(
 		Options()			map[string]interface{}
 		Definition()			Definition
 		encoding.TextMarshaler
-		encoding.TextUnmarshaler
 		flag.Value
 	}
 

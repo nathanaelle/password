@@ -185,12 +185,6 @@ func (p *md5pwd) MarshalText() ([]byte, error) {
 	return	[]byte(p.String()), nil
 }
 
-
-func (p *md5pwd) UnmarshalText(text []byte) error {
-	return	p.Set(string(text))
-}
-
-
 func (p *md5pwd) crypt(pwd []byte)	[16]byte {
 	var	sumA	[]byte
 
