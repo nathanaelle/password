@@ -174,7 +174,7 @@ func (p *bcryptpwd) Set(str string) error {
 		list = list[:len(list)-1]
 	}
 
-	opt := options_single_int(list[0], "cost", 2)
+	opt := optionsSingleInt(list[0], "cost", 2)
 	if opt == nil {
 		np := (&bcryptpwd{prefix: prefix, cost: bcryptDefCost})
 		blob := []byte(list[0])
@@ -190,7 +190,7 @@ func (p *bcryptpwd) Set(str string) error {
 		return ERR_NOPE
 	}
 
-	sr, ok := option_int(opt, "cost", bcryptDefCost)
+	sr, ok := optionInt(opt, "cost", bcryptDefCost)
 	if !ok {
 		return ERR_NOPE
 	}

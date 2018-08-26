@@ -173,7 +173,7 @@ func (p *sha256pwd) Set(str string) error {
 		return ERR_NOPE
 	}
 
-	sr, ok := option_int(opt, "rounds", sha256DefRounds)
+	sr, ok := optionInt(opt, "rounds", sha256DefRounds)
 	if !ok {
 		return ERR_NOPE
 	}
@@ -201,17 +201,17 @@ func (p *sha256pwd) MarshalText() ([]byte, error) {
 }
 
 func (p *sha256pwd) crypt(pwd []byte) [32]byte {
-	sumB := common_sum(sha256.New(), pwd, p.salt, pwd).Sum(nil)
+	sumB := commonSum(sha256.New(), pwd, p.salt, pwd).Sum(nil)
 
-	A := common_sum(sha256.New(), pwd, p.salt, repeat_bytes(sumB, len(pwd)))
-	sumA := common_sum(A, common_mixer(len(pwd), sumB, pwd)...).Sum(nil)
+	A := commonSum(sha256.New(), pwd, p.salt, repeatBytes(sumB, len(pwd)))
+	sumA := commonSum(A, commonMixer(len(pwd), sumB, pwd)...).Sum(nil)
 
-	sumP := repeat_bytes(common_sum(sha256.New(), multiply_bytes(pwd, len(pwd))...).Sum(nil), len(pwd))
-	sumS := repeat_bytes(common_sum(sha256.New(), multiply_bytes(p.salt, (16+int(sumA[0])))...).Sum(nil), len(p.salt))
+	sumP := repeatBytes(commonSum(sha256.New(), multiplyBytes(pwd, len(pwd))...).Sum(nil), len(pwd))
+	sumS := repeatBytes(commonSum(sha256.New(), multiplyBytes(p.salt, (16+int(sumA[0])))...).Sum(nil), len(p.salt))
 
 	sumC := sumA
 	for i := 0; i < p.rounds; i++ {
-		sumC = common_sum(sha256.New(), common_dispatch(i, sumC, sumP, sumS)...).Sum(nil)
+		sumC = commonSum(sha256.New(), commonDispatch(i, sumC, sumP, sumS)...).Sum(nil)
 	}
 
 	return [32]byte{

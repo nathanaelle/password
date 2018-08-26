@@ -42,7 +42,7 @@ func getrandh64(l int) []byte {
 	return ret[:l]
 }
 
-func options_single_int(str, optName string, maxLen int) map[string]interface{} {
+func optionsSingleInt(str, optName string, maxLen int) map[string]interface{} {
 	if str == "" {
 		return nil
 	}
@@ -83,7 +83,7 @@ func options(str string) map[string]interface{} {
 	return ret
 }
 
-func option_int(opt map[string]interface{}, k string, def int) (int, bool) {
+func optionInt(opt map[string]interface{}, k string, def int) (int, bool) {
 	if opt == nil {
 		return def, true
 	}
@@ -123,14 +123,14 @@ func bounded(min, v, max int) int {
 	return v
 }
 
-func repeat_bytes(src []byte, l_dest int) []byte {
-	dest := make([]byte, 0, l_dest)
-	l_src := len(src)
-	mod := l_dest % l_src
-	rounds := (l_dest - mod)
+func repeatBytes(src []byte, lenDest int) []byte {
+	dest := make([]byte, 0, lenDest)
+	lenSrc := len(src)
+	mod := lenDest % lenSrc
+	rounds := (lenDest - mod)
 
 	if rounds > 0 {
-		for i := 0; i < rounds; i += l_src {
+		for i := 0; i < rounds; i += lenSrc {
 			dest = append(dest, src...)
 		}
 	}
@@ -139,12 +139,12 @@ func repeat_bytes(src []byte, l_dest int) []byte {
 		dest = append(dest, src[0:mod]...)
 	}
 
-	assert(len(dest) == l_dest, fmt.Errorf("l_dest [%d] != len(dest) [%d] l_src [%d]", l_dest, len(dest), l_src))
+	assert(len(dest) == lenDest, fmt.Errorf("lenDest [%d] != len(dest) [%d] lenSrc [%d]", lenDest, len(dest), lenSrc))
 
 	return dest
 }
 
-func multiply_bytes(src []byte, scalar int) [][]byte {
+func multiplyBytes(src []byte, scalar int) [][]byte {
 	ret := make([][]byte, scalar)
 	for i := range ret {
 		ret[i] = src
@@ -196,7 +196,7 @@ func h64Encode(src []byte) []byte {
 }
 
 // used in SHA256-CRYPT SHA512-CRYPT MD5-CRYPT
-func common_sum(h hash.Hash, vec ...[]byte) hash.Hash {
+func commonSum(h hash.Hash, vec ...[]byte) hash.Hash {
 	for _, s := range vec {
 		h.Write(s)
 	}
@@ -205,7 +205,7 @@ func common_sum(h hash.Hash, vec ...[]byte) hash.Hash {
 }
 
 // used in SHA256-CRYPT SHA512-CRYPT
-func common_dispatch(i int, sumC, sumP, sumS []byte) [][]byte {
+func commonDispatch(i int, sumC, sumP, sumS []byte) [][]byte {
 	if i%42 == 0 {
 		return [][]byte{sumC, sumP}
 	}
@@ -230,7 +230,7 @@ func common_dispatch(i int, sumC, sumP, sumS []byte) [][]byte {
 	return [][]byte{sumP, sumS, sumP, sumC}
 }
 
-func common_mixer(l int, caseA, caseB []byte) (ret [][]byte) {
+func commonMixer(l int, caseA, caseB []byte) (ret [][]byte) {
 	for i := l; i > 0; i >>= 1 {
 		if (i % 2) != 0 {
 			ret = append(ret, caseA)

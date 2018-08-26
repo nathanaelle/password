@@ -181,19 +181,19 @@ func (p *md5pwd) MarshalText() ([]byte, error) {
 func (p *md5pwd) crypt(pwd []byte) [16]byte {
 	var sumA []byte
 
-	sumB := common_sum(md5.New(), pwd, p.salt, pwd).Sum(nil)
+	sumB := commonSum(md5.New(), pwd, p.salt, pwd).Sum(nil)
 
 	if len(pwd) < 1 {
-		A := common_sum(md5.New(), pwd, []byte(p.prefix), p.salt, repeat_bytes(sumB, len(pwd)))
-		sumA = common_sum(A, common_mixer(len(pwd), []byte{0}, []byte{0})...).Sum(nil)
+		A := commonSum(md5.New(), pwd, []byte(p.prefix), p.salt, repeatBytes(sumB, len(pwd)))
+		sumA = commonSum(A, commonMixer(len(pwd), []byte{0}, []byte{0})...).Sum(nil)
 	} else {
-		A := common_sum(md5.New(), pwd, []byte(p.prefix), p.salt, repeat_bytes(sumB, len(pwd)))
-		sumA = common_sum(A, common_mixer(len(pwd), []byte{0}, pwd[0:1])...).Sum(nil)
+		A := commonSum(md5.New(), pwd, []byte(p.prefix), p.salt, repeatBytes(sumB, len(pwd)))
+		sumA = commonSum(A, commonMixer(len(pwd), []byte{0}, pwd[0:1])...).Sum(nil)
 	}
 
 	sumC := sumA
 	for i := 0; i < md5DefRounds; i++ {
-		sumC = common_sum(md5.New(), common_dispatch(i, sumC, pwd, p.salt)...).Sum(nil)
+		sumC = commonSum(md5.New(), commonDispatch(i, sumC, pwd, p.salt)...).Sum(nil)
 	}
 
 	return [16]byte{

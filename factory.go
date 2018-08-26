@@ -47,17 +47,17 @@ func register(def Definition) Definition {
 	return def
 }
 
-// register the definition of a new crypter
+// Register register the definition of a new crypter
 func Register(def ...Definition) {
 	crypt.Register(def...)
 }
 
-// define a default crypter
+// SetDefault define a default crypter
 func SetDefault(def Definition) {
 	crypt.SetDefault(def)
 }
 
-// see `Crypt.Set(string) error`
+// Set is a default implementation of `Crypt.Set(string) error`
 func Set(pwd string) error {
 	return crypt.Set(pwd)
 }
@@ -123,10 +123,12 @@ func (c *Factory) CrypterFound() Crypter {
 	return c.found
 }
 
+// MarshalText implements TextMarshaler
 func (c *Factory) MarshalText() ([]byte, error) {
 	return []byte(c.String()), nil
 }
 
+// UnmarshalText implements TextUnmarshaler
 func (c *Factory) UnmarshalText(text []byte) error {
 	return c.Set(string(text))
 }
