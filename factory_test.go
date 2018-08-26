@@ -1,22 +1,21 @@
-package	password	// import "github.com/nathanaelle/password"
+package password // import "github.com/nathanaelle/password"
 
-import	(
+import (
 	"testing"
 )
 
-
 func isError(err, seqerr error) bool {
 	if err == nil {
-		return	seqerr != nil
+		return seqerr != nil
 	}
 
 	if err == NoMatchingDef {
 		// NoMatchingDef absorb any error
 		// so the only isError possible is wen there is no error
-		return	seqerr == nil
+		return seqerr == nil
 	}
 
-	return	err != seqerr
+	return err != seqerr
 }
 
 func TestCryptSet(t *testing.T) {

@@ -1,20 +1,19 @@
-package	password	// import "github.com/nathanaelle/password"
+package password // import "github.com/nathanaelle/password"
 
-import	(
-	"hash"
+import (
 	"crypto/rand"
-	"strings"
-	"fmt"
-	"strconv"
 	"encoding/base64"
+	"fmt"
+	"hash"
+	"strconv"
+	"strings"
 )
 
-
-var rawbase64	= base64.RawStdEncoding
-var bc64	= base64.NewEncoding("./ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789").WithPadding(base64.NoPadding)
+var rawbase64 = base64.RawStdEncoding
+var bc64 = base64.NewEncoding("./ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789").WithPadding(base64.NoPadding)
 
 func getrand(l int) []byte {
-	if l<1 || l>65536 {
+	if l < 1 || l > 65536 {
 		panic("get rand size <l> is not valid")
 	}
 
@@ -24,13 +23,11 @@ func getrand(l int) []byte {
 		panic(err)
 	}
 
-	return	ret
+	return ret
 }
 
-
-
 func getrandh64(l int) []byte {
-	if l<1 || l>65536 {
+	if l < 1 || l > 65536 {
 		panic("get rand size <l> is not valid")
 	}
 
@@ -42,40 +39,39 @@ func getrandh64(l int) []byte {
 
 	ret := h64Encode(t)
 
-	return	ret[:l]
+	return ret[:l]
 }
-
 
 func options_single_int(str, opt_name string, max_len int) map[string]interface{} {
 	if str == "" {
-		return	nil
+		return nil
 	}
 
 	if len(str) > max_len {
-		return	nil
+		return nil
 	}
 
-	v,err := strconv.Atoi(str)
+	v, err := strconv.Atoi(str)
 	if err != nil {
-		return	nil
+		return nil
 	}
-	ret	:= make(map[string]interface{})
+	ret := make(map[string]interface{})
 	ret[opt_name] = v
 
-	return	ret
+	return ret
 }
 
 func options(str string) map[string]interface{} {
 	if str == "" {
-		return	nil
+		return nil
 	}
 
 	if !strings.Contains(str, "=") {
-		return	nil
+		return nil
 	}
 
-	list	:= strings.Split(str, ",")
-	ret	:= make(map[string]interface{})
+	list := strings.Split(str, ",")
+	ret := make(map[string]interface{})
 
 	for _, tok := range list {
 		kv := strings.SplitN(tok, "=", 2)
@@ -84,36 +80,34 @@ func options(str string) map[string]interface{} {
 		}
 	}
 
-	return	ret
+	return ret
 }
 
-func option_int(opt map[string]interface{}, k string, def int) (int,bool) {
+func option_int(opt map[string]interface{}, k string, def int) (int, bool) {
 	if opt == nil {
-		return	def, true
+		return def, true
 	}
 
-	ienc,ok := opt[k]
+	ienc, ok := opt[k]
 	if !ok {
-		return	def, true
+		return def, true
 	}
 
 	switch enc := ienc.(type) {
 	case string:
-		v,err := strconv.Atoi(enc)
+		v, err := strconv.Atoi(enc)
 		if err != nil {
-			return	0,false
+			return 0, false
 		}
-		return	v,true
+		return v, true
 
-	case	int:
-		return	enc,true
+	case int:
+		return enc, true
 	}
-	return	0,false
+	return 0, false
 }
 
-
-
-func assert(t bool, i interface{})  {
+func assert(t bool, i interface{}) {
 	if !t {
 		panic(i)
 	}
@@ -121,19 +115,19 @@ func assert(t bool, i interface{})  {
 
 func bounded(min, v, max int) int {
 	if v < min {
-		return	min
+		return min
 	}
 	if v > max {
-		return	max
+		return max
 	}
-	return	v
+	return v
 }
 
 func repeat_bytes(src []byte, l_dest int) []byte {
-	dest	:= make([]byte, 0, l_dest)
-	l_src	:= len(src)
-	mod	:= l_dest % l_src
-	rounds	:= (l_dest-mod)
+	dest := make([]byte, 0, l_dest)
+	l_src := len(src)
+	mod := l_dest % l_src
+	rounds := (l_dest - mod)
 
 	if rounds > 0 {
 		for i := 0; i < rounds; i += l_src {
@@ -145,23 +139,22 @@ func repeat_bytes(src []byte, l_dest int) []byte {
 		dest = append(dest, src[0:mod]...)
 	}
 
-	assert( len(dest) == l_dest, fmt.Errorf("l_dest [%d] != len(dest) [%d] l_src [%d]", l_dest, len(dest), l_src))
+	assert(len(dest) == l_dest, fmt.Errorf("l_dest [%d] != len(dest) [%d] l_src [%d]", l_dest, len(dest), l_src))
 
-	return	dest
+	return dest
 }
 
 func multiply_bytes(src []byte, scalar int) [][]byte {
 	ret := make([][]byte, scalar)
-	for i,_ := range ret {
-		ret[i]	= src
+	for i := range ret {
+		ret[i] = src
 	}
 
-	return	ret
+	return ret
 }
 
-
 const (
-	h64	string = "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+	h64 string = "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 )
 
 func h64Encode(src []byte) []byte {
@@ -202,45 +195,44 @@ func h64Encode(src []byte) []byte {
 	return hash
 }
 
-
 // used in SHA256-CRYPT SHA512-CRYPT MD5-CRYPT
 func common_sum(h hash.Hash, vec ...[]byte) hash.Hash {
 	for _, s := range vec {
 		h.Write(s)
 	}
 
-	return	h
+	return h
 }
 
 // used in SHA256-CRYPT SHA512-CRYPT
 func common_dispatch(i int, sumC, sumP, sumS []byte) [][]byte {
 	if i%42 == 0 {
-		return [][]byte{ sumC, sumP }
+		return [][]byte{sumC, sumP}
 	}
 	if i%21 == 0 {
-		return [][]byte{ sumP, sumC }
+		return [][]byte{sumP, sumC}
 	}
 	if i%14 == 0 {
-		return [][]byte{ sumC, sumS, sumP }
+		return [][]byte{sumC, sumS, sumP}
 	}
 	if i%7 == 0 {
-		return [][]byte{ sumP, sumS, sumC }
+		return [][]byte{sumP, sumS, sumC}
 	}
 	if i%6 == 0 {
-		return [][]byte{ sumC, sumP, sumP }
+		return [][]byte{sumC, sumP, sumP}
 	}
 	if i%3 == 0 {
-		return [][]byte{ sumP, sumP, sumC }
+		return [][]byte{sumP, sumP, sumC}
 	}
 	if i%2 == 0 {
-		return [][]byte{ sumC, sumS, sumP, sumP }
+		return [][]byte{sumC, sumS, sumP, sumP}
 	}
-	return [][]byte{ sumP, sumS, sumP, sumC }
+	return [][]byte{sumP, sumS, sumP, sumC}
 }
 
 func common_mixer(l int, caseA, caseB []byte) (ret [][]byte) {
 	for i := l; i > 0; i >>= 1 {
-		if (i%2) != 0 {
+		if (i % 2) != 0 {
 			ret = append(ret, caseA)
 		} else {
 			ret = append(ret, caseB)

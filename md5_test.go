@@ -29,8 +29,6 @@ var (
 		{"$1$WApznUOJfkEGSmYRfnkrPO", "~!@#$%^&*()      ~!@#$%^&*()PNBFRD", "$1$WApznUOJ$Cj6xDlGzwEKY17htunUTw."}}
 )
 
-
-
 func TestDefMD5Result(t *testing.T) {
 	for idx, seq := range result_md5 {
 		if _, ok := MD5.CrypterFound(seq.output); !ok {
@@ -43,39 +41,37 @@ func TestDefMD5Result(t *testing.T) {
 	}
 }
 
-
 func TestDefMD5Valid(t *testing.T) {
-/*
-	for idx, seq := range valid_md5 {
-		if _, ok := MD5.CrypterFound(seq.input); ok != (seq.err == nil) {
-			t.Errorf("%3d : bogus valid\t%s", idx, seq.input)
+	/*
+		for idx, seq := range valid_md5 {
+			if _, ok := MD5.CrypterFound(seq.input); ok != (seq.err == nil) {
+				t.Errorf("%3d : bogus valid\t%s", idx, seq.input)
+			}
 		}
-	}
 
-	for idx, seq := range valid_md5 {
-		if err := MD5.Default().Set(seq.input); err != seq.err {
-			t.Errorf("%3d : bogus err [%s] %v %v", idx, seq.input, seq.err, err)
+		for idx, seq := range valid_md5 {
+			if err := MD5.Default().Set(seq.input); err != seq.err {
+				t.Errorf("%3d : bogus err [%s] %v %v", idx, seq.input, seq.err, err)
+			}
 		}
-	}
-*/
+	*/
 }
 
-
 func TestCrypterMD5Crypt(t *testing.T) {
-/*
-	for idx, seq := range result_md5 {
-		crypter, ok := MD5.CrypterFound(seq.salt)
-		if !ok {
-			t.Errorf("%3d : invalid\t%20s", idx, seq.salt)
-			continue
-		}
+	/*
+		for idx, seq := range result_md5 {
+			crypter, ok := MD5.CrypterFound(seq.salt)
+			if !ok {
+				t.Errorf("%3d : invalid\t%20s", idx, seq.salt)
+				continue
+			}
 
-		out := crypter.Crypt([]byte(seq.input)).String()
-		if out != seq.output {
-			t.Errorf("-- %d\n%80s\n%80s", idx, out, seq.output)
+			out := crypter.Crypt([]byte(seq.input)).String()
+			if out != seq.output {
+				t.Errorf("-- %d\n%80s\n%80s", idx, out, seq.output)
+			}
 		}
-	}
-*/
+	*/
 }
 
 func TestCrypterMD5Verify(t *testing.T) {

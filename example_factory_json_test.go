@@ -1,18 +1,17 @@
-package	password	// import "github.com/nathanaelle/password"
+package password // import "github.com/nathanaelle/password"
 
-import	(
+import (
 	"encoding/json"
 	"fmt"
 	"log"
 )
 
-
 func ExampleFactory_UnmarshalText() {
-	var t  struct {
-		Password   *Factory	`json:"pwd"`
+	var t struct {
+		Password *Factory `json:"pwd"`
 	}
 
-	data	:= []byte(`{"pwd":"$2a$06$DCq7YPn5Rq63x1Lad4cll.TV4S6ytwfsfvkgY8jIucDrjc8deX1s."}`)
+	data := []byte(`{"pwd":"$2a$06$DCq7YPn5Rq63x1Lad4cll.TV4S6ytwfsfvkgY8jIucDrjc8deX1s."}`)
 
 	if err := json.Unmarshal(data, &t); err != nil {
 		log.Fatal(err)
