@@ -20,16 +20,17 @@ type (
 )
 
 const (
-	sha512_min_rounds = 1000
-	sha512_max_rounds = 999999999
-	sha512_def_rounds = 5000
+	sha512MinRounds = 1000
+	sha512MaxRounds = 999999999
+	sha512DefRounds = 5000
 
-	sha512_prefix = "$6$"
+	sha512Prefix = "$6$"
 )
 
-var SHA512 Definition = register(sha512driver{sha512_def_rounds})
+// SHA512 is the exported driver for SHA512-CRYPT
+var SHA512 = register(sha512driver{sha512DefRounds})
 
-func (_ sha512driver) String() string {
+func (d sha512driver) String() string {
 	return "{SHA512-CRYPT}"
 }
 
@@ -49,7 +50,7 @@ func (d sha512driver) SetOptions(o map[string]interface{}) Definition {
 		return d
 	}
 
-	return sha512driver{bounded(sha512_min_rounds, v, sha512_max_rounds)}
+	return sha512driver{bounded(sha512MinRounds, v, sha512MaxRounds)}
 }
 
 func (d sha512driver) Default() Crypter {
@@ -63,7 +64,7 @@ func (d sha512driver) Crypt(pwd, salt []byte, options map[string]interface{}) st
 }
 
 func (d sha512driver) CrypterFound(str string) (Crypter, bool) {
-	if len(str) < len(sha512_prefix) || str[0:len(sha512_prefix)] != sha512_prefix {
+	if len(str) < len(sha512Prefix) || str[0:len(sha512Prefix)] != sha512Prefix {
 		return nil, false
 	}
 
@@ -120,11 +121,11 @@ func (p *sha512pwd) String() string {
 	hashencoded := string(p.hashed[:])
 	saltencoded := string(p.salt)
 
-	if p.rounds == sha512_def_rounds {
-		return fmt.Sprintf(sha512_prefix+"%s$%s", saltencoded, hashencoded)
+	if p.rounds == sha512DefRounds {
+		return fmt.Sprintf(sha512Prefix+"%s$%s", saltencoded, hashencoded)
 
 	}
-	return fmt.Sprintf(sha512_prefix+"rounds=%d$%s$%s", p.rounds, saltencoded, hashencoded)
+	return fmt.Sprintf(sha512Prefix+"rounds=%d$%s$%s", p.rounds, saltencoded, hashencoded)
 }
 
 func (p *sha512pwd) Verify(pwd []byte) bool {
@@ -142,16 +143,16 @@ func (p *sha512pwd) Set(str string) error {
 		return ERR_NOPE
 	}
 
-	if len(str) < len(sha512_prefix) || str[0:len(sha512_prefix)] != sha512_prefix {
+	if len(str) < len(sha512Prefix) || str[0:len(sha512Prefix)] != sha512Prefix {
 		return ERR_NOPE
 	}
 
-	if len(str) == len(sha512_prefix) {
-		*p = sha512pwd{rounds: sha512_def_rounds}
+	if len(str) == len(sha512Prefix) {
+		*p = sha512pwd{rounds: sha512DefRounds}
 		return nil
 	}
 
-	list := strings.SplitN(str[len(sha512_prefix):], "$", 3)
+	list := strings.SplitN(str[len(sha512Prefix):], "$", 3)
 
 	if list[len(list)-1] == "" {
 		list = list[:len(list)-1]
@@ -159,7 +160,7 @@ func (p *sha512pwd) Set(str string) error {
 
 	opt := options(list[0])
 	if opt == nil {
-		np := (&sha512pwd{rounds: sha512_def_rounds}).Salt([]byte(list[0]))
+		np := (&sha512pwd{rounds: sha512DefRounds}).Salt([]byte(list[0]))
 		switch len(list) {
 		case 1:
 			*p = *(np.(*sha512pwd))
@@ -172,12 +173,12 @@ func (p *sha512pwd) Set(str string) error {
 		return ERR_NOPE
 	}
 
-	sr, ok := option_int(opt, "rounds", sha512_def_rounds)
+	sr, ok := option_int(opt, "rounds", sha512DefRounds)
 	if !ok {
 		return ERR_NOPE
 	}
 
-	np := (&sha512pwd{rounds: bounded(sha512_min_rounds, sr, sha512_max_rounds)})
+	np := (&sha512pwd{rounds: bounded(sha512MinRounds, sr, sha512MaxRounds)})
 	switch len(list) {
 	case 1:
 		*p = *np

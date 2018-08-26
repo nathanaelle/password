@@ -3,8 +3,9 @@ package password // import "github.com/nathanaelle/password"
 import (
 	"crypto/subtle"
 	"fmt"
-	"golang.org/x/crypto/blowfish"
 	"strings"
+
+	"golang.org/x/crypto/blowfish"
 )
 
 type (
@@ -22,19 +23,20 @@ type (
 )
 
 const (
-	bcrypt_min_cost = 4
-	bcrypt_max_cost = 31
-	bcrypt_def_cost = 12
+	bcryptMinCost = 4
+	bcryptMaxCost = 31
+	bcryptDefCost = 12
 )
 
 var (
 	orpheanbeholderscrydoubt = []byte("OrpheanBeholderScryDoubt")
-	bcrypt_prefix            = [5]string{"$2a$", "$2$", "$2b$", "$2x$", "$2y$"}
+	bcryptPrefix             = [5]string{"$2a$", "$2$", "$2b$", "$2x$", "$2y$"}
 )
 
-var BCRYPT Definition = register(bcryptdriver{bcrypt_prefix[0], bcrypt_def_cost})
+// BCRYPT is the exported driver for BLF-CRYPT
+var BCRYPT = register(bcryptdriver{bcryptPrefix[0], bcryptDefCost})
 
-func (_ bcryptdriver) String() string {
+func (d bcryptdriver) String() string {
 	return "{BLF-CRYPT}"
 }
 
@@ -54,7 +56,7 @@ func (d bcryptdriver) SetOptions(o map[string]interface{}) Definition {
 		return d
 	}
 
-	return bcryptdriver{d.prefix, bounded(bcrypt_min_cost, v, bcrypt_max_cost)}
+	return bcryptdriver{d.prefix, bounded(bcryptMinCost, v, bcryptMaxCost)}
 }
 
 func (d bcryptdriver) Default() Crypter {
@@ -69,7 +71,7 @@ func (d bcryptdriver) Crypt(pwd, salt []byte, options map[string]interface{}) st
 }
 
 func (d bcryptdriver) CrypterFound(str string) (Crypter, bool) {
-	if _, ok := dispatch_bcrypt_prefix(str); !ok {
+	if _, ok := dispatchBcryptPrefix(str); !ok {
 		return nil, false
 	}
 
@@ -128,7 +130,7 @@ func (p *bcryptpwd) Crypt(pwd []byte) Crypter {
 func (p *bcryptpwd) String() string {
 	hashencoded := string(p.hashed[:])
 	saltencoded := bc64.EncodeToString(p.salt)
-	if p.cost == bcrypt_def_cost {
+	if p.cost == bcryptDefCost {
 		return fmt.Sprintf(p.prefix+"%s%s", saltencoded, hashencoded)
 
 	}
@@ -141,8 +143,8 @@ func (p *bcryptpwd) Verify(pwd []byte) bool {
 	return (subtle.ConstantTimeCompare(he, p.hashed[:]) == 1)
 }
 
-func dispatch_bcrypt_prefix(str string) (string, bool) {
-	for _, prefix := range bcrypt_prefix {
+func dispatchBcryptPrefix(str string) (string, bool) {
+	for _, prefix := range bcryptPrefix {
 		if len(str) >= len(prefix) && str[0:len(prefix)] == prefix {
 			return prefix, true
 		}
@@ -156,13 +158,13 @@ func (p *bcryptpwd) Set(str string) error {
 		return ERR_NOPE
 	}
 
-	prefix, ok := dispatch_bcrypt_prefix(str)
+	prefix, ok := dispatchBcryptPrefix(str)
 	if !ok {
 		return ERR_NOPE
 	}
 
 	if len(str) == len(prefix) {
-		*p = bcryptpwd{prefix: prefix, cost: bcrypt_def_cost}
+		*p = bcryptpwd{prefix: prefix, cost: bcryptDefCost}
 		return nil
 	}
 
@@ -174,7 +176,7 @@ func (p *bcryptpwd) Set(str string) error {
 
 	opt := options_single_int(list[0], "cost", 2)
 	if opt == nil {
-		np := (&bcryptpwd{prefix: prefix, cost: bcrypt_def_cost})
+		np := (&bcryptpwd{prefix: prefix, cost: bcryptDefCost})
 		blob := []byte(list[0])
 		switch len(blob) {
 		case 22:
@@ -188,12 +190,12 @@ func (p *bcryptpwd) Set(str string) error {
 		return ERR_NOPE
 	}
 
-	sr, ok := option_int(opt, "cost", bcrypt_def_cost)
+	sr, ok := option_int(opt, "cost", bcryptDefCost)
 	if !ok {
 		return ERR_NOPE
 	}
 
-	np := (&bcryptpwd{prefix: prefix, cost: bounded(bcrypt_min_cost, sr, bcrypt_max_cost)})
+	np := (&bcryptpwd{prefix: prefix, cost: bounded(bcryptMinCost, sr, bcryptMaxCost)})
 	if len(list) == 1 {
 		*p = *np
 		return nil

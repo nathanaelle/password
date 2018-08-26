@@ -6,7 +6,7 @@ import (
 
 var (
 	// test vectors from https://bitbucket.org/vadim/bcrypt.net/src/464c41416dc9/BCrypt.Net.Test/TestBCrypt.cs?fileviewer=file-view-default
-	result_bcrypt []testresult = []testresult{
+	resultBcrypt = []testresult{
 		{"$2$06$DCq7YPn5Rq63x1Lad4cll.", "", "$2$06$DCq7YPn5Rq63x1Lad4cll.TV4S6ytwfsfvkgY8jIucDrjc8deX1s."},
 		{"$2a$08$HqWuK6/Ng6sg9gQzbLrgb.", "", "$2a$08$HqWuK6/Ng6sg9gQzbLrgb.Tl.ZHfXLhvt/SgVyWhQqgqcZ7ZuUtye"},
 		{"$2a$10$k1wbIrmNyFAPwPVPSVa/ze", "", "$2a$10$k1wbIrmNyFAPwPVPSVa/zecw2BCEnBwVS2GbrmgzxFUOqW9dk4TCW"},
@@ -29,7 +29,7 @@ var (
 		{"$2a$12$WApznUOJfkEGSmYRfnkrPO", "~!@#$%^&*()      ~!@#$%^&*()PNBFRD", "$2a$WApznUOJfkEGSmYRfnkrPOr466oFDCaj4b6HY3EXGvfxm43seyhgC"},
 	}
 
-	valid_bcrypt []testvalid = []testvalid{
+	validBcrypt = []testvalid{
 		{"", ERR_NOPE},
 		{"$", ERR_NOPE},
 		{"$$", ERR_NOPE},
@@ -45,7 +45,7 @@ var (
 )
 
 func TestDefBCRYPTResult(t *testing.T) {
-	for idx, seq := range result_bcrypt {
+	for idx, seq := range resultBcrypt {
 		if _, ok := BCRYPT.CrypterFound(seq.output); !ok {
 			t.Errorf("%3d : invalid\t%s", idx, seq.output)
 		}
@@ -57,13 +57,13 @@ func TestDefBCRYPTResult(t *testing.T) {
 }
 
 func TestDefBCRYPTValid(t *testing.T) {
-	for idx, seq := range valid_bcrypt {
+	for idx, seq := range validBcrypt {
 		if _, ok := BCRYPT.CrypterFound(seq.input); ok != (seq.err == nil) {
 			t.Errorf("%3d : bogus valid\t%s", idx, seq.input)
 		}
 	}
 
-	for idx, seq := range valid_bcrypt {
+	for idx, seq := range validBcrypt {
 		if err := BCRYPT.Default().Set(seq.input); err != seq.err {
 			t.Errorf("%3d : bogus err [%s] %v %v", idx, seq.input, seq.err, err)
 		}
@@ -71,7 +71,7 @@ func TestDefBCRYPTValid(t *testing.T) {
 }
 
 func TestCrypterBCRYPTCrypt(t *testing.T) {
-	for idx, seq := range result_bcrypt {
+	for idx, seq := range resultBcrypt {
 		crypter, ok := BCRYPT.CrypterFound(seq.salt)
 		if !ok {
 			t.Errorf("%3d : invalid\t%20s", idx, seq.salt)
@@ -86,7 +86,7 @@ func TestCrypterBCRYPTCrypt(t *testing.T) {
 }
 
 func TestCrypterBCRYPTVerify(t *testing.T) {
-	for idx, seq := range result_bcrypt {
+	for idx, seq := range resultBcrypt {
 		crypter, ok := BCRYPT.CrypterFound(seq.output)
 		if !ok {
 			t.Errorf("%3d : invalid\t%20s", idx, seq.salt)

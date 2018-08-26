@@ -5,7 +5,7 @@ import (
 )
 
 var (
-	result_sha512 []testresult = []testresult{
+	resultSHA512 = []testresult{
 		{"$6$saltstring", "Hello world!", "$6$saltstring$svn8UoSVapNtMuq1ukKS4tPQd8iKwSMHWjl/O817G3uBnIFNjnQJuesI68u4OTLiBFdcbYEdFCoEOfaS35inz1"},
 		{"$6$rounds=10000$saltstringsaltstring", "Hello world!", "$6$rounds=10000$saltstringsaltst$OW1/O6BYHV6BcXZu8QVeXbDWra3Oeqh0sbHbbMCVNSnCM/UrjmM0Dp8vOuZeHBy/YTBmSK6H9qs/y3RnOaw5v."},
 		{"$6$rounds=5000$toolongsaltstring", "This is just a test", "$6$toolongsaltstrin$lQ8jolhgVRVhY4b5pZKaysCLi0QBxGoNeKQzQ3glMhwllF7oGDZxUhx1yxdYcz/e1JSbq3y6JMxxl8audkUEm0"},
@@ -15,7 +15,7 @@ var (
 		{"$6$rounds=77777$short", "we have a short salt string but not a short password", "$6$rounds=77777$short$WuQyW2YR.hBNpjjRhpYD/ifIw05xdfeEyQoMxIXbkvr0gge1a1x3yRULJ5CCaUeOxFmtlcGZelFl5CxtgfiAc0"},
 	}
 
-	valid_sha512 []testvalid = []testvalid{
+	validSHA512 = []testvalid{
 		{"", ERR_NOPE},
 		{"$", ERR_NOPE},
 		{"$$", ERR_NOPE},
@@ -34,7 +34,7 @@ var (
 )
 
 func TestDefSHA512Result(t *testing.T) {
-	for idx, seq := range result_sha512 {
+	for idx, seq := range resultSHA512 {
 		if _, ok := SHA512.CrypterFound(seq.output); !ok {
 			t.Errorf("%3d : invalid\t%s", idx, seq.output)
 		}
@@ -46,13 +46,13 @@ func TestDefSHA512Result(t *testing.T) {
 }
 
 func TestDefSHA512Valid(t *testing.T) {
-	for idx, seq := range valid_sha512 {
+	for idx, seq := range validSHA512 {
 		if _, ok := SHA512.CrypterFound(seq.input); ok != (seq.err == nil) {
 			t.Errorf("%3d : bogus valid\t%s", idx, seq.input)
 		}
 	}
 
-	for idx, seq := range valid_sha512 {
+	for idx, seq := range validSHA512 {
 		if err := SHA512.Default().Set(seq.input); err != seq.err {
 			t.Errorf("%3d : bogus err [%s] %v %v", idx, seq.input, seq.err, err)
 		}
@@ -60,7 +60,7 @@ func TestDefSHA512Valid(t *testing.T) {
 }
 
 func TestCrypterSHA512Crypt(t *testing.T) {
-	for idx, seq := range result_sha512 {
+	for idx, seq := range resultSHA512 {
 		crypter, ok := SHA512.CrypterFound(seq.salt)
 		if !ok {
 			t.Errorf("%3d : invalid\t%20s", idx, seq.salt)
@@ -75,7 +75,7 @@ func TestCrypterSHA512Crypt(t *testing.T) {
 }
 
 func TestCrypterSHA512Verify(t *testing.T) {
-	for idx, seq := range result_sha512 {
+	for idx, seq := range resultSHA512 {
 		crypter, ok := SHA512.CrypterFound(seq.output)
 		if !ok {
 			t.Errorf("%3d : invalid\t%20s", idx, seq.salt)

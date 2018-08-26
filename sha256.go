@@ -20,16 +20,17 @@ type (
 )
 
 const (
-	sha256_min_rounds = 1000
-	sha256_max_rounds = 999999999
-	sha256_def_rounds = 5000
+	sha256MinRounds = 1000
+	sha256MaxRounds = 999999999
+	sha256DefRounds = 5000
 
-	sha256_prefix = "$5$"
+	sha256Prefix = "$5$"
 )
 
-var SHA256 Definition = register(sha256driver{sha256_def_rounds})
+// SHA256 is the exported driver for SHA256-CRYPT
+var SHA256 = register(sha256driver{sha256DefRounds})
 
-func (_ sha256driver) String() string {
+func (d sha256driver) String() string {
 	return "{SHA256-CRYPT}"
 }
 
@@ -49,7 +50,7 @@ func (d sha256driver) SetOptions(o map[string]interface{}) Definition {
 		return d
 	}
 
-	return sha256driver{bounded(sha256_min_rounds, v, sha256_max_rounds)}
+	return sha256driver{bounded(sha256MinRounds, v, sha256MaxRounds)}
 }
 
 func (d sha256driver) Default() Crypter {
@@ -63,7 +64,7 @@ func (d sha256driver) Crypt(pwd, salt []byte, options map[string]interface{}) st
 }
 
 func (d sha256driver) CrypterFound(str string) (Crypter, bool) {
-	if len(str) < len(sha256_prefix) || str[0:len(sha256_prefix)] != sha256_prefix {
+	if len(str) < len(sha256Prefix) || str[0:len(sha256Prefix)] != sha256Prefix {
 		return nil, false
 	}
 
@@ -120,11 +121,11 @@ func (p *sha256pwd) String() string {
 	hashencoded := string(p.hashed[:])
 	saltencoded := string(p.salt)
 
-	if p.rounds == sha256_def_rounds {
-		return fmt.Sprintf(sha256_prefix+"%s$%s", saltencoded, hashencoded)
+	if p.rounds == sha256DefRounds {
+		return fmt.Sprintf(sha256Prefix+"%s$%s", saltencoded, hashencoded)
 
 	}
-	return fmt.Sprintf(sha256_prefix+"rounds=%d$%s$%s", p.rounds, saltencoded, hashencoded)
+	return fmt.Sprintf(sha256Prefix+"rounds=%d$%s$%s", p.rounds, saltencoded, hashencoded)
 }
 
 func (p *sha256pwd) Verify(pwd []byte) bool {
@@ -142,16 +143,16 @@ func (p *sha256pwd) Set(str string) error {
 		return ERR_NOPE
 	}
 
-	if len(str) < len(sha256_prefix) || str[0:len(sha256_prefix)] != sha256_prefix {
+	if len(str) < len(sha256Prefix) || str[0:len(sha256Prefix)] != sha256Prefix {
 		return ERR_NOPE
 	}
 
-	if len(str) == len(sha256_prefix) {
-		*p = sha256pwd{rounds: sha256_def_rounds}
+	if len(str) == len(sha256Prefix) {
+		*p = sha256pwd{rounds: sha256DefRounds}
 		return nil
 	}
 
-	list := strings.SplitN(str[len(sha256_prefix):], "$", 3)
+	list := strings.SplitN(str[len(sha256Prefix):], "$", 3)
 
 	if list[len(list)-1] == "" {
 		list = list[:len(list)-1]
@@ -159,7 +160,7 @@ func (p *sha256pwd) Set(str string) error {
 
 	opt := options(list[0])
 	if opt == nil {
-		np := (&sha256pwd{rounds: sha256_def_rounds}).Salt([]byte(list[0]))
+		np := (&sha256pwd{rounds: sha256DefRounds}).Salt([]byte(list[0]))
 		switch len(list) {
 		case 1:
 			*p = *(np.(*sha256pwd))
@@ -172,12 +173,12 @@ func (p *sha256pwd) Set(str string) error {
 		return ERR_NOPE
 	}
 
-	sr, ok := option_int(opt, "rounds", sha256_def_rounds)
+	sr, ok := option_int(opt, "rounds", sha256DefRounds)
 	if !ok {
 		return ERR_NOPE
 	}
 
-	np := (&sha256pwd{rounds: bounded(sha256_min_rounds, sr, sha256_max_rounds)})
+	np := (&sha256pwd{rounds: bounded(sha256MinRounds, sr, sha256MaxRounds)})
 	switch len(list) {
 	case 1:
 		*p = *np

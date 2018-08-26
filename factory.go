@@ -7,6 +7,7 @@ import (
 )
 
 type (
+	// Definition represent the public interface for a *-CRYPT
 	Definition interface {
 		String() string
 		CrypterFound(string) (Crypter, bool)
@@ -18,6 +19,7 @@ type (
 		Crypt(pwd, salt []byte, options map[string]interface{}) string
 	}
 
+	// Crypter is the public interface for an instancied Definition
 	Crypter interface {
 		Salt(salt []byte) Crypter
 		Hashed(pwd []byte) Crypter
@@ -29,6 +31,7 @@ type (
 		flag.Value
 	}
 
+	// Factory is a syntaxic sugar for finding the Definition from a password string
 	Factory struct {
 		CustomFlagHelper func([]string) string
 		index            []Definition
@@ -120,10 +123,10 @@ func (c *Factory) CrypterFound() Crypter {
 	return c.found
 }
 
-func (p *Factory) MarshalText() ([]byte, error) {
-	return []byte(p.String()), nil
+func (c *Factory) MarshalText() ([]byte, error) {
+	return []byte(c.String()), nil
 }
 
-func (p *Factory) UnmarshalText(text []byte) error {
-	return p.Set(string(text))
+func (c *Factory) UnmarshalText(text []byte) error {
+	return c.Set(string(text))
 }

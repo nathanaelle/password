@@ -5,7 +5,7 @@ import (
 )
 
 var (
-	result_sha256 []testresult = []testresult{
+	resultSHA256 = []testresult{
 		{"$5$saltstring", "Hello world!", "$5$saltstring$5B8vYYiY.CVt1RlTTf8KbXBH3hsxY/GNooZaBBGWEc5"},
 		{"$5$rounds=10000$saltstringsaltstring", "Hello world!", "$5$rounds=10000$saltstringsaltst$3xv.VbSHBb41AL9AvLeujZkZRBAwqFMz2.opqey6IcA"},
 		{"$5$rounds=5000$toolongsaltstring", "This is just a test", "$5$toolongsaltstrin$Un/5jzAHMgOGZ5.mWJpuVolil07guHPvOW8mGRcvxa5"},
@@ -15,7 +15,7 @@ var (
 		{"$5$rounds=77777$short", "we have a short salt string but not a short password", "$5$rounds=77777$short$JiO1O3ZpDAxGJeaDIuqCoEFysAe1mZNJRs3pw0KQRd/"},
 	}
 
-	valid_sha256 []testvalid = []testvalid{
+	validSHA256 = []testvalid{
 		{"", ERR_NOPE},
 		{"$", ERR_NOPE},
 		{"$$", ERR_NOPE},
@@ -34,7 +34,7 @@ var (
 )
 
 func TestDefSHA256Result(t *testing.T) {
-	for idx, seq := range result_sha256 {
+	for idx, seq := range resultSHA256 {
 		if _, ok := SHA256.CrypterFound(seq.output); !ok {
 			t.Errorf("%3d : invalid\t%s", idx, seq.output)
 		}
@@ -46,13 +46,13 @@ func TestDefSHA256Result(t *testing.T) {
 }
 
 func TestDefSHA256Valid(t *testing.T) {
-	for idx, seq := range valid_sha256 {
+	for idx, seq := range validSHA256 {
 		if _, ok := SHA256.CrypterFound(seq.input); ok != (seq.err == nil) {
 			t.Errorf("%3d : bogus valid\t%s", idx, seq.input)
 		}
 	}
 
-	for idx, seq := range valid_sha256 {
+	for idx, seq := range validSHA256 {
 		if err := SHA256.Default().Set(seq.input); err != seq.err {
 			t.Errorf("%3d : bogus err [%s] %v %v", idx, seq.input, seq.err, err)
 		}
@@ -60,7 +60,7 @@ func TestDefSHA256Valid(t *testing.T) {
 }
 
 func TestCrypterSHA256Crypt(t *testing.T) {
-	for idx, seq := range result_sha256 {
+	for idx, seq := range resultSHA256 {
 		crypter, ok := SHA256.CrypterFound(seq.salt)
 		if !ok {
 			t.Errorf("%3d : invalid\t%20s", idx, seq.salt)
@@ -75,7 +75,7 @@ func TestCrypterSHA256Crypt(t *testing.T) {
 }
 
 func TestCrypterSHA256Verify(t *testing.T) {
-	for idx, seq := range result_sha256 {
+	for idx, seq := range resultSHA256 {
 		crypter, ok := SHA256.CrypterFound(seq.output)
 		if !ok {
 			t.Errorf("%3d : invalid\t%20s", idx, seq.salt)

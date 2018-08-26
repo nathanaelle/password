@@ -20,20 +20,23 @@ type (
 )
 
 const (
-	md5_def_rounds = 1000
+	md5DefRounds = 1000
 
-	md5_prefix  = "$1$"
-	apr1_prefix = "$apr1$"
+	md5Prefix  = "$1$"
+	apr1Prefix = "$apr1$"
 )
 
-var MD5 Definition = md5driver{md5_prefix}
-var APR1 Definition = md5driver{apr1_prefix}
+// MD5 is the exported driver for MD5-CRYPT
+var MD5 Definition = md5driver{md5Prefix}
+
+// APR1 is the exported driver for APR1-CRYPT
+var APR1 Definition = md5driver{apr1Prefix}
 
 func (d md5driver) String() string {
 	switch d.prefix {
-	case apr1_prefix:
+	case apr1Prefix:
 		return "{APR1-CRYPT}"
-	case md5_prefix:
+	case md5Prefix:
 		return "{MD5-CRYPT}"
 	}
 	panic(ErrUnknownMD5Prefix)
@@ -56,7 +59,7 @@ func (d md5driver) Crypt(pwd, salt []byte, options map[string]interface{}) strin
 }
 
 func (d md5driver) CrypterFound(str string) (Crypter, bool) {
-	if _, ok := dispatch_md5_prefix(str); !ok {
+	if _, ok := dispatchMD5Prefix(str); !ok {
 		return nil, false
 	}
 
@@ -122,15 +125,15 @@ func (p *md5pwd) Verify(pwd []byte) bool {
 	return (subtle.ConstantTimeCompare(he, p.hashed[:]) == 1)
 }
 
-func dispatch_md5_prefix(str string) (string, bool) {
-	is_md5 := (len(str) > +len(md5_prefix) && str[0:len(md5_prefix)] == md5_prefix)
-	is_apr1 := (len(str) > +len(apr1_prefix) && str[0:len(apr1_prefix)] == apr1_prefix)
+func dispatchMD5Prefix(str string) (string, bool) {
+	isMD5 := (len(str) > +len(md5Prefix) && str[0:len(md5Prefix)] == md5Prefix)
+	isAPR1 := (len(str) > +len(apr1Prefix) && str[0:len(apr1Prefix)] == apr1Prefix)
 
 	switch {
-	case is_md5:
-		return md5_prefix, true
-	case is_apr1:
-		return apr1_prefix, true
+	case isMD5:
+		return md5Prefix, true
+	case isAPR1:
+		return apr1Prefix, true
 	}
 
 	return "", false
@@ -141,17 +144,17 @@ func (p *md5pwd) Set(str string) error {
 		return ERR_NOPE
 	}
 
-	my_prefix, ok := dispatch_md5_prefix(str)
+	myPrefix, ok := dispatchMD5Prefix(str)
 	if !ok {
 		return ERR_NOPE
 	}
 
-	if len(str) == len(my_prefix) {
-		*p = md5pwd{prefix: my_prefix}
+	if len(str) == len(myPrefix) {
+		*p = md5pwd{prefix: myPrefix}
 		return nil
 	}
 
-	list := strings.SplitN(str[len(my_prefix):], "$", 3)
+	list := strings.SplitN(str[len(myPrefix):], "$", 3)
 
 	if list[len(list)-1] == "" {
 		list = list[:len(list)-1]
@@ -159,12 +162,12 @@ func (p *md5pwd) Set(str string) error {
 
 	switch len(list) {
 	case 1:
-		np := (&md5pwd{prefix: my_prefix}).Salt([]byte(list[0]))
+		np := (&md5pwd{prefix: myPrefix}).Salt([]byte(list[0]))
 		*p = *(np.(*md5pwd))
 		return nil
 
 	case 2:
-		np := (&md5pwd{prefix: my_prefix}).Salt([]byte(list[0]))
+		np := (&md5pwd{prefix: myPrefix}).Salt([]byte(list[0]))
 		*p = *(np.Hashed([]byte(list[1])).(*md5pwd))
 		return nil
 	}
@@ -189,7 +192,7 @@ func (p *md5pwd) crypt(pwd []byte) [16]byte {
 	}
 
 	sumC := sumA
-	for i := 0; i < md5_def_rounds; i++ {
+	for i := 0; i < md5DefRounds; i++ {
 		sumC = common_sum(md5.New(), common_dispatch(i, sumC, pwd, p.salt)...).Sum(nil)
 	}
 

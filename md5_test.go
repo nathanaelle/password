@@ -6,7 +6,7 @@ import (
 
 var (
 	// test vectors from https://bitbucket.org/vadim/bcrypt.net/src/464c41416dc9/BCrypt.Net.Test/TestBCrypt.cs?fileviewer=file-view-default
-	result_md5 []testresult = []testresult{
+	resultMD5 = []testresult{
 		{"$1$DCq7YPn5Rq63x1Lad5cll.", "", "$1$DCq7YPn5$XvsD4rTRiLrWAnLyoC7PQ0"},
 		{"$1$HqWuK6/Ng6sg9gQzbLrgb.", "", "$1$HqWuK6/N$AB48xNmyrTpr6.lwmP72n."},
 		{"$1$k1wbIrmNyFAPwPVPSVa/ze", "", "$1$k1wbIrmN$TpCT6fw7tbeqJnJxNmDKK/"},
@@ -30,7 +30,7 @@ var (
 )
 
 func TestDefMD5Result(t *testing.T) {
-	for idx, seq := range result_md5 {
+	for idx, seq := range resultMD5 {
 		if _, ok := MD5.CrypterFound(seq.output); !ok {
 			t.Errorf("%3d : invalid\t%s", idx, seq.output)
 		}
@@ -43,13 +43,13 @@ func TestDefMD5Result(t *testing.T) {
 
 func TestDefMD5Valid(t *testing.T) {
 	/*
-		for idx, seq := range valid_md5 {
+		for idx, seq := range resultMD5 {
 			if _, ok := MD5.CrypterFound(seq.input); ok != (seq.err == nil) {
 				t.Errorf("%3d : bogus valid\t%s", idx, seq.input)
 			}
 		}
 
-		for idx, seq := range valid_md5 {
+		for idx, seq := range resultMD5 {
 			if err := MD5.Default().Set(seq.input); err != seq.err {
 				t.Errorf("%3d : bogus err [%s] %v %v", idx, seq.input, seq.err, err)
 			}
@@ -59,7 +59,7 @@ func TestDefMD5Valid(t *testing.T) {
 
 func TestCrypterMD5Crypt(t *testing.T) {
 	/*
-		for idx, seq := range result_md5 {
+		for idx, seq := range resultMD5 {
 			crypter, ok := MD5.CrypterFound(seq.salt)
 			if !ok {
 				t.Errorf("%3d : invalid\t%20s", idx, seq.salt)
@@ -75,7 +75,7 @@ func TestCrypterMD5Crypt(t *testing.T) {
 }
 
 func TestCrypterMD5Verify(t *testing.T) {
-	for idx, seq := range result_md5 {
+	for idx, seq := range resultMD5 {
 		crypter, ok := MD5.CrypterFound(seq.output)
 		if !ok {
 			t.Errorf("%3d : invalid\t%20s", idx, seq.salt)

@@ -42,12 +42,12 @@ func getrandh64(l int) []byte {
 	return ret[:l]
 }
 
-func options_single_int(str, opt_name string, max_len int) map[string]interface{} {
+func options_single_int(str, optName string, maxLen int) map[string]interface{} {
 	if str == "" {
 		return nil
 	}
 
-	if len(str) > max_len {
+	if len(str) > maxLen {
 		return nil
 	}
 
@@ -56,7 +56,7 @@ func options_single_int(str, opt_name string, max_len int) map[string]interface{
 		return nil
 	}
 	ret := make(map[string]interface{})
-	ret[opt_name] = v
+	ret[optName] = v
 
 	return ret
 }
@@ -164,7 +164,7 @@ func h64Encode(src []byte) []byte {
 
 	hashSize := len(src) * 4 / 3
 	if (len(src) % 3) != 0 {
-		hashSize += 1
+		hashSize++
 	}
 	hash := make([]byte, hashSize)
 
