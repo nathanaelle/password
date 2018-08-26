@@ -5,5 +5,7 @@ go:
 branches:
   only:
   - master
-install:
-  - go get golang.org/x/crypto/blowfish
+script:
+  - env GO111MODULE=on go build 
+  - env GO111MODULE=on go test
+  
