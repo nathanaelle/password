@@ -1,3 +1,5 @@
 module github.com/nathanaelle/password/v2
 
-require golang.org/x/crypto v0.0.0-20180820150726-614d502a4dac
+go 1.11
+
+require golang.org/x/crypto v0.0.0-20200311171314-f7b00557c8c4

@@ -1,6 +1,6 @@
 # password
 
-[![License](http://img.shields.io/badge/license-Simplified_BSD-blue.svg?style=flat)](LICENSE.txt) [![Go Doc](http://img.shields.io/badge/godoc-password-blue.svg?style=flat)](http://godoc.org/github.com/nathanaelle/password) [![Build Status](https://travis-ci.org/nathanaelle/password.svg?branch=master)](https://travis-ci.org/nathanaelle/password)  [![Go Report Card](https://goreportcard.com/badge/github.com/nathanaelle/password)](https://goreportcard.com/report/github.com/nathanaelle/password)
+[![License](http://img.shields.io/badge/license-Simplified_BSD-blue.svg?style=flat)](LICENSE.txt) [![Go Doc](http://img.shields.io/badge/godoc-password-blue.svg?style=flat)](https://pkg.go.dev/github.com/nathanaelle/password) [![Build Status](https://travis-ci.org/nathanaelle/password.svg?branch=master)](https://travis-ci.org/nathanaelle/password)  [![Go Report Card](https://goreportcard.com/badge/github.com/nathanaelle/password)](https://goreportcard.com/report/github.com/nathanaelle/password)
 
 
 ## Implemented schemas

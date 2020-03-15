@@ -1,4 +1,4 @@
-package password
+package password // import "github.com/nathanaelle/password/v2"
 
 import (
 	"testing"

@@ -1,4 +1,4 @@
-package password // import "github.com/nathanaelle/password"
+package password // import "github.com/nathanaelle/password/v2"
 
 import (
 	"crypto/sha512"
